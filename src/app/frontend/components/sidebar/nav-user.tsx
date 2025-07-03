@@ -39,25 +39,25 @@ export function NavUser() {
   const navigate = useNavigate();
 
   const payAction = useAction(api.stripe.pay);
-  
+
   const handleUpgrade = async () => {
     if (!user?._id) {
       console.error("No ID available");
       return;
     }
-    
+
     try {
       const url = await payAction();
-      window.location.href = url
+      window.location.href = url;
     } catch (error) {
       console.error("Subscription failed:", error);
     }
   };
-  
+
   const handleSignIn = async () => {
     await signIn("google", {
       redirectTo: `${window.location.origin}/chat`,
-    })
+    });
   };
 
   const handleSignOut = async () => {
@@ -80,8 +80,7 @@ export function NavUser() {
         className="flex w-full select-none items-center gap-4 rounded-lg p-4 py-6"
         onClick={handleSignIn}
       >
-        <LogInIcon className="w-5 h-5" />{" "}
-        <span>Log in</span>
+        <LogInIcon className="w-5 h-5" /> <span>Log in</span>
       </Button>
     );
   }
@@ -103,7 +102,9 @@ export function NavUser() {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs capitalize">{user.subscriptionId ? "Pro" : "Free"}</span>
+                <span className="truncate text-xs capitalize">
+                  {user.subscriptionId ? "Pro" : "Free"}
+                </span>
               </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -134,17 +135,19 @@ export function NavUser() {
                     </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  {!user.subscriptionId && (
-                    <DropdownMenuItem onClick={handleUpgrade}>
-                      <Sparkles />
-                      Upgrade to Pro
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
+                {!user.subscriptionId && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem onClick={handleUpgrade}>
+                        <Sparkles />
+                        Upgrade to Pro
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </>
+                )}
+                {/* <DropdownMenuSeparator /> */}
+                {/* <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <BadgeCheck />
                     Account
@@ -157,10 +160,10 @@ export function NavUser() {
                     <Bell />
                     Notifications
                   </DropdownMenuItem>
-                </DropdownMenuGroup>
+                </DropdownMenuGroup> */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut  />
+                  <LogOut />
                   Log out
                 </DropdownMenuItem>
               </>
