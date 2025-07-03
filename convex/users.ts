@@ -1,8 +1,9 @@
-import { SessionIdArg } from "convex-helpers/server/sessions";
-import { authedQuery } from "./utils";
+import { SessionId, SessionIdArg } from "convex-helpers/server/sessions";
+import { authedQuery, getOrCreateUser } from "./utils";
 import { v } from "convex/values";
-import { ActionCtx, internalMutation, MutationCtx, QueryCtx } from "./_generated/server";
+import { ActionCtx, internalMutation, mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { FREE_CHAT_COUNT } from "@/lib/constants";
+import { Id } from "./_generated/dataModel";
 
 const getUserId = async (ctx: QueryCtx | MutationCtx | ActionCtx) => {
   return (await ctx.auth.getUserIdentity())?.subject;
@@ -17,10 +18,24 @@ export const getCurrentUser = authedQuery({
   },
 });
 
+export const getUserBySessionId = query({
+  args: { sessionId: v.string() },
+  handler: async (ctx, args) => {
+    return getFullUserBySessionId(ctx, args.sessionId as SessionId);
+  },
+});
+
 export function getFullUser(ctx: QueryCtx | MutationCtx, userId: string) {
   return ctx.db
     .query("users")
     .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .first();
+}
+
+export function getFullUserBySessionId(ctx: QueryCtx | MutationCtx, sessionId: SessionId) {
+  return ctx.db
+    .query("users")
+    .withIndex("by_sessionId", (q) => q.eq("sessionId", sessionId))
     .first();
 }
 
@@ -112,7 +127,7 @@ export const resetProUserChatCounts = internalMutation({
   args: {},
   handler: async (ctx) => {
     const now = Date.now();
-    
+
     // Get all users with active subscriptions
     const subscribedUsers = await ctx.db
       .query("users")
@@ -120,7 +135,7 @@ export const resetProUserChatCounts = internalMutation({
       .collect();
 
     let resetCount = 0;
-    
+
     for (const user of subscribedUsers) {
       // Check if user has active subscription
       if (user.subscriptionId && (user.subscriptionEndsOn ?? 0) > now) {
@@ -131,7 +146,7 @@ export const resetProUserChatCounts = internalMutation({
         resetCount++;
       }
     }
-    
+
     console.log(`Reset chat counts for ${resetCount} pro users`);
     return { resetCount };
   },
@@ -142,7 +157,7 @@ export const resetFreeUserDailyChatCounts = internalMutation({
   args: {},
   handler: async (ctx) => {
     const now = Date.now();
-    
+
     // Get all authenticated users
     const authenticatedUsers = await ctx.db
       .query("users")
@@ -150,11 +165,11 @@ export const resetFreeUserDailyChatCounts = internalMutation({
       .collect();
 
     let resetCount = 0;
-    
+
     for (const user of authenticatedUsers) {
       // Check if user does NOT have active subscription (free user)
       const hasActiveSubscription = user.subscriptionId && (user.subscriptionEndsOn ?? 0) > now;
-      
+
       if (!hasActiveSubscription) {
         await ctx.db.patch(user._id, {
           chatCount: FREE_CHAT_COUNT, // Free authenticated users get 20 chats per day
@@ -162,8 +177,39 @@ export const resetFreeUserDailyChatCounts = internalMutation({
         resetCount++;
       }
     }
-    
+
     console.log(`Reset daily chat counts for ${resetCount} free authenticated users`);
     return { resetCount };
+  },
+});
+
+export const decrementUserChatCount = mutation({
+  args: { userId: v.optional(v.string()), sessionId: v.optional(v.string()), isAnonymous: v.optional(v.boolean()) },
+  handler: async (ctx, args) => {
+    const user = args.isAnonymous ? await getFullUserBySessionId(ctx, args.sessionId as SessionId) : await getFullUser(ctx, args.userId as string);
+
+    if (!user) {
+      throw new Error("no user found with that user id");
+    }
+
+    await ctx.db.patch(user._id, {
+      chatCount: user.chatCount ? user.chatCount - 1 : 0,
+    });
+  },
+});
+
+export const createAnonymousUser = mutation({
+  args: { sessionId: v.string() },
+  handler: async (ctx, args) => {
+    return await getOrCreateUser(ctx, args.sessionId);
+  },
+});
+
+export const patchUserId = mutation({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.userId as Id<"users">, {
+      userId: args.userId,
+    });
   },
 });

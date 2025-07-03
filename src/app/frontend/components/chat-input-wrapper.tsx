@@ -366,10 +366,12 @@ export default function ChatInputWrapper({
           } catch {
             toast.error("Invalid request. Please check your message and try again.");
           }
+        } else if (response.status === 402) {
+          toast.error("You have no enough chat count.");
         } else {
           toast.error("Failed to send message. Please try again.");
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       navigate(`/chat/${currentThreadId}`);

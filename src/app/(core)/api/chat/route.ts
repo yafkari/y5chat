@@ -7,7 +7,7 @@ import { createResumableStreamContext } from "resumable-stream/ioredis";
 import { after } from "next/server";
 import { redis } from "@/app/backend/lib/redis";
 import { SessionId } from "convex-helpers/server/sessions";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { getDownloadSignedUrl } from "@/app/backend/lib/s3";
 import { headers } from "next/headers";
 
@@ -110,6 +110,7 @@ export async function POST(req: Request) {
   }
 
   let userId: string;
+  let currentUser: Doc<"users"> | null = null;
   let isUserSubscribed: boolean = false;
   let isAuthenticated: boolean = false;
 
@@ -119,8 +120,8 @@ export async function POST(req: Request) {
 
     try {
       // Validate token by calling Convex - this will fail if token is invalid
-      const currentUser = await SERVER_CONVEX_CLIENT.query(api.users.getCurrentUser, {
-        sessionId: (convexSessionId || "temp-session") as SessionId,
+      currentUser = await SERVER_CONVEX_CLIENT.query(api.users.getCurrentUser, {
+        sessionId: convexSessionId as SessionId,
       });
 
       if (currentUser) {
@@ -128,6 +129,12 @@ export async function POST(req: Request) {
         userId = currentUser.type === "authenticated" ? currentUser._id : `anon:${convexSessionId}`;
         isUserSubscribed = (currentUser?.subscriptionId?.length ?? 0) > 0 && (currentUser?.subscriptionEndsOn ?? 0) > Date.now();
         isAuthenticated = currentUser.type === "authenticated";
+
+        if (!currentUser.userId) {
+          await SERVER_CONVEX_CLIENT.mutation(api.users.patchUserId, {
+            userId: currentUser._id,
+          });
+        }
       } else {
         return new Response("Unable to authenticate user", { status: 401 });
       }
@@ -136,10 +143,29 @@ export async function POST(req: Request) {
       return new Response("Invalid authentication token", { status: 401 });
     }
   } else {
-    // Anonymous user
-    userId = `anon:${convexSessionId}`;
+    currentUser = await SERVER_CONVEX_CLIENT.query(api.users.getUserBySessionId, {
+      sessionId: convexSessionId as SessionId,
+    });
+
+    if (!currentUser) { // TODO rate limit creation of anonymous users
+      currentUser = await SERVER_CONVEX_CLIENT.mutation(api.users.createAnonymousUser, {
+        sessionId: convexSessionId as SessionId,
+      });
+    }
+
+    userId = currentUser?.userId || `anon:${convexSessionId}`;
     isAuthenticated = false;
   }
+
+  if (!currentUser?.chatCount || currentUser?.chatCount <= 0) {
+    return new Response(JSON.stringify("User has no enough chat count"), { status: 402 });
+  }
+
+  await SERVER_CONVEX_CLIENT.mutation(api.users.decrementUserChatCount, {
+    userId: currentUser._id,
+    sessionId: convexSessionId as SessionId,
+    isAnonymous: currentUser?.type === "anonymous",
+  });
 
   // Apply rate limiting
   const rateLimitId = isAuthenticated ? userId : `ip:${clientIP}`;

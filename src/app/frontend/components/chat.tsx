@@ -238,11 +238,12 @@ export default function Chat() {
             } catch {
               toast.error("Invalid request. Please try regenerating again.");
             }
+          } else if (response.status === 402) {
+            toast.error("You have no enough chat count.");
           } else {
             toast.error("Failed to regenerate message. Please try again.");
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
-
-          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         await handleStreamingResponse(
@@ -408,10 +409,12 @@ export default function Chat() {
             } catch {
               toast.error("Invalid request. Please try branching again.");
             }
+          } else if (response.status === 402) {
+            toast.error("You have no enough chat count.");
           } else {
             toast.error("Failed to branch conversation. Please try again.");
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
-          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         await handleStreamingResponse(
@@ -578,10 +581,12 @@ export default function Chat() {
             } catch {
               toast.error("Invalid request. Please try editing again.");
             }
+          } else if (response.status === 402) {
+            toast.error("You have no enough chat count.");
           } else {
             toast.error("Failed to edit message. Please try again.");
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
-          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         await handleStreamingResponse(

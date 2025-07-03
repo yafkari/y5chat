@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { GitBranch, RotateCcw, FileText, Brain, ImageIcon, Globe } from "lucide-react";
+import { GitBranch, RotateCw, FileText, Brain, ImageIcon, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -133,7 +133,7 @@ export default function ModelActionDropdown({
       title: "Create new thread with alternative response",
     },
     regenerate: {
-      icon: RotateCcw,
+      icon: RotateCw,
       label: "Re-generate",
       title: "Replace current response",
     },

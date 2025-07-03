@@ -2,7 +2,6 @@ import { SessionIdArg } from 'convex-helpers/server/sessions';
 import { mutation } from "@/convex/_generated/server";
 import { Infer, v } from "convex/values";
 import { authedMutation, authedQuery, getOrCreateUser, getUserId } from "./utils";
-import { Id } from './_generated/dataModel';
 import { Message, MessagePart, MessagePartValidator, MessageStatusValidator, MessageValidator, ProviderMetadata } from './schema';
 import { generateUUID } from '@/lib/utils';
 
@@ -45,14 +44,6 @@ export const addMessagesToThread = mutation({
       .first() : null;
 
     if (!existingThread) {
-      if (!user.chatCount || user.chatCount <= 0) {
-        throw new Error("User has no enough chat count");
-      }
-
-      await ctx.db.patch(user._id, {
-        chatCount: user.chatCount - 1,
-      });
-
       // Create new thread
       const threadDoc = await ctx.db.insert("threads", {
         threadId: threadId ?? generateUUID(),
@@ -99,61 +90,6 @@ export const addMessagesToThread = mutation({
     return { success: true };
   },
 });
-
-// Keep the simpler send function for backwards compatibility
-export const send = mutation({
-  args: { text: v.string(), threadId: v.optional(v.string()), ...SessionIdArg },
-  handler: async (ctx, { text, threadId, sessionId }) => {
-    // Get or create user based on session (handles both anonymous and authenticated)
-    const user = await getOrCreateUser(ctx, sessionId);
-    const userIdString = getUserId(user);
-
-    if (!user.chatCount || user.chatCount <= 0) {
-      throw new Error("User has no enough chat count");
-    }
-
-    await ctx.db.patch(user._id, {
-      chatCount: user.chatCount - 1,
-    });
-
-
-    let newThreadId: Id<"threads"> | null = null;
-    if (!threadId) {
-      newThreadId = await ctx.db.insert("threads", {
-        createdAt: Date.now(),
-        userId: userIdString,
-        threadId: `${userIdString}:${generateUUID()}`,
-        title: "New Thread",
-        generationStatus: "pending" as const,
-        visibility: "visible" as const,
-        model: "gpt-4o" as const,
-        pinned: false,
-        updatedAt: Date.now(),
-        lastMessageAt: Date.now(),
-      });
-    }
-
-    const newMessage: Message = {
-      parts: [
-        {
-          type: "text",
-          text: text,
-        }
-      ],
-      role: "user" as const,
-      threadId: threadId ?? newThreadId ?? generateUUID(),
-      userId: userIdString,
-      createdAt: Date.now(),
-      model: "gpt-4o" as const,
-      status: "pending" as const,
-      messageId: generateUUID(),
-      attachmentIds: []
-    }
-
-    await ctx.db.insert("messages", newMessage);
-  },
-});
-
 
 export const updateMessage = mutation({
   args: {
