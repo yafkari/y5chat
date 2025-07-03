@@ -93,6 +93,12 @@ export default function Chat() {
     async (messageId: string, modelId?: string) => {
       if (!messages || !threadId) return;
 
+      // Check if captcha token is available
+      if (!captchaToken) {
+        toast.error("Please wait for the security check to complete before regenerating messages");
+        return;
+      }
+
       // Find the message to regenerate
       const messageIndex = messages.findIndex((m) => m.messageId === messageId);
       if (messageIndex === -1) return;
@@ -211,6 +217,20 @@ export default function Chat() {
         if (!response.ok) {
           if (response.status === 401) {
             toast.error("You need to be logged in to regenerate messages");
+          } else if (response.status === 400) {
+            // Try to get more specific error message
+            try {
+              const errorData = await response.json();
+              if (errorData.error && errorData.error.includes("captcha")) {
+                toast.error("Security check failed. Please refresh the page and try again.");
+              } else {
+                toast.error(errorData.error || "Invalid request. Please try regenerating again.");
+              }
+            } catch {
+              toast.error("Invalid request. Please try regenerating again.");
+            }
+          } else {
+            toast.error("Failed to regenerate message. Please try again.");
           }
 
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -253,6 +273,12 @@ export default function Chat() {
   const handleBranch = useCallback(
     async (messageId: string, modelId?: string) => {
       if (!messages || !threadId) return;
+
+      // Check if captcha token is available
+      if (!captchaToken) {
+        toast.error("Please wait for the security check to complete before branching conversations");
+        return;
+      }
 
       // Find the message to branch from
       const messageIndex = messages.findIndex((m) => m.messageId === messageId);
@@ -351,6 +377,20 @@ export default function Chat() {
         if (!response.ok) {
           if (response.status === 401) {
             toast.error("You need to be logged in to branch conversations");
+          } else if (response.status === 400) {
+            // Try to get more specific error message
+            try {
+              const errorData = await response.json();
+              if (errorData.error && errorData.error.includes("captcha")) {
+                toast.error("Security check failed. Please refresh the page and try again.");
+              } else {
+                toast.error(errorData.error || "Invalid request. Please try branching again.");
+              }
+            } catch {
+              toast.error("Invalid request. Please try branching again.");
+            }
+          } else {
+            toast.error("Failed to branch conversation. Please try again.");
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -394,6 +434,12 @@ export default function Chat() {
   const handleEdit = useCallback(
     async (messageId: string, newText: string) => {
       if (!messages || !threadId) return;
+
+      // Check if captcha token is available
+      if (!captchaToken) {
+        toast.error("Please wait for the security check to complete before editing messages");
+        return;
+      }
 
       // Find the message to edit
       const messageIndex = messages.findIndex((m) => m.messageId === messageId);
@@ -489,6 +535,20 @@ export default function Chat() {
         if (!response.ok) {
           if (response.status === 401) {
             toast.error("You need to be logged in to edit messages");
+          } else if (response.status === 400) {
+            // Try to get more specific error message
+            try {
+              const errorData = await response.json();
+              if (errorData.error && errorData.error.includes("captcha")) {
+                toast.error("Security check failed. Please refresh the page and try again.");
+              } else {
+                toast.error(errorData.error || "Invalid request. Please try editing again.");
+              }
+            } catch {
+              toast.error("Invalid request. Please try editing again.");
+            }
+          } else {
+            toast.error("Failed to edit message. Please try again.");
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }

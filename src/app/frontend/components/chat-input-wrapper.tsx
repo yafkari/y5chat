@@ -220,11 +220,18 @@ export default function ChatInputWrapper({
     const hasUploadingAttachments = attachments.some(
       (attachment) => attachment.uploading
     );
+    
     if (
       (!text?.trim() && attachments.length === 0) ||
       isAnyStreaming ||
       hasUploadingAttachments
     ) {
+      return;
+    }
+
+    // Check if captcha token is available
+    if (!captchaToken) {
+      toast.error("Please wait for the security check to complete before sending messages");
       return;
     }
 
@@ -347,6 +354,20 @@ export default function ChatInputWrapper({
       if (!response.ok) {
         if (response.status === 401) {
           toast.error("You need to be logged in to send messages");
+        } else if (response.status === 400) {
+          // Try to get more specific error message
+          try {
+            const errorData = await response.json();
+            if (errorData.error && errorData.error.includes("captcha")) {
+              toast.error("Security check failed. Please refresh the page and try again.");
+            } else {
+              toast.error(errorData.error || "Invalid request. Please check your message and try again.");
+            }
+          } catch {
+            toast.error("Invalid request. Please check your message and try again.");
+          }
+        } else {
+          toast.error("Failed to send message. Please try again.");
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -465,11 +486,13 @@ export default function ChatInputWrapper({
                         ? "AI is responding..."
                         : attachments.some((a) => a.uploading)
                         ? "Uploading files..."
+                        : !captchaToken
+                        ? "Completing security check..."
                         : !supportsAnyUpload && !supportsWebSearch
                         ? "Send a message (text only)..."
                         : "Send a message..."
                     }
-                    disabled={isAnyStreaming}
+                    disabled={isAnyStreaming || !captchaToken}
                     maxRows={10}
                     minRows={1}
                     className="w-full resize-none bg-transparent text-base leading-6 text-foreground outline-none placeholder:text-secondary-foreground/60 disabled:opacity-50"
@@ -504,7 +527,7 @@ export default function ChatInputWrapper({
                     {supportsAnyUpload && (
                       <UploadAttachmentsButton
                         onFilesSelected={handleFilesAdded}
-                        disabled={isAnyStreaming}
+                        disabled={isAnyStreaming || !captchaToken}
                         acceptTypes={Object.keys(acceptedTypes).join(",")}
                         isUserSubscribed={isUserSubscribed}
                         upgradeDropdownOpen={openUpgradeDropdown === "upload"}
@@ -527,7 +550,7 @@ export default function ChatInputWrapper({
                     ) : (
                       <Button
                         type="submit"
-                        disabled={attachments.some((a) => a.uploading)}
+                        disabled={attachments.some((a) => a.uploading) || !captchaToken}
                         size="xs"
                         className="pointer-events-auto z-50 bg-neutral-800/80 hover:bg-neutral-800 text-neutral-200 text-sm !px-2.5 mb-0.5 -mr-1 py-5 rounded-full shadow-lg backdrop-blur-sm transition-[colors,opacity] disabled:opacity-30"
                       >
