@@ -81,12 +81,11 @@ export async function POST(req: Request) {
   //   return new Response("Invalid captcha token", { status: 400 });
   // }
 
-  let {
+  const {
     messages,
     threadMetadata,
     responseMessageId,
     streamId,
-    model,
     convexSessionId,
     modelParams,
     userInfo,
@@ -177,6 +176,8 @@ export async function POST(req: Request) {
     return new Response("Upgrade to Pro to use this feature", { status: 402 });
   }
 
+
+  let model = data.model;
   if (!Object.keys(AI_MODELS).includes(model)) {
     model = "gemini_2_flash";
   }
