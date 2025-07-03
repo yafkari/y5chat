@@ -307,6 +307,11 @@ export default function ChatInputWrapper({
 
       const allMessages = [...aiSdkMessages, newUserMessage];
 
+      let sessionId = localStorage.getItem("convex-session-id");
+      if (sessionId && sessionId.startsWith('"') && sessionId.endsWith('"')) {
+        sessionId = sessionId.slice(1, -1);
+      }
+
       const requestParams = JSON.stringify({
         messages: allMessages,
         threadMetadata: {
@@ -314,8 +319,8 @@ export default function ChatInputWrapper({
         },
         responseMessageId,
         streamId,
-        model: selectedModel,
-        convexSessionId: localStorage.getItem("convex-session-id"),
+        model: selectedModel ?? "gemini_2_flash",
+        convexSessionId: sessionId,
         modelParams: {
           reasoningEffort: "medium" as const,
           includeSearch: isWebSearch && supportsWebSearch,
