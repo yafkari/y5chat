@@ -37,7 +37,7 @@ export default function UpgradeCta() {
       <div className="rounded-full bg-primary px-3 py-4 mb-4 text-sm text-white dark:text-black flex justify-center items-center relative select-none w-full">
         <span className="flex-1">
           You only have {chatCount ? chatCount : !user?._id ? 10 : 0} messages left.{" "}
-          <Button variant="link" onClick={handleUpgrade} className="p-0 underline text-secondary">
+          <Button variant="link" onClick={handleUpgrade} className="p-0 underline text-secondary hover:text-secondary/80">
             {!user?._id || user?.type === "anonymous" ? "Sign in to reset your limits" : "Upgrade to Pro"}
           </Button>
         </span>

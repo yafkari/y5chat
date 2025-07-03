@@ -115,7 +115,7 @@ export const AI_MODELS: Record<string, AIModelConfig> = {
     title: "GPT 4.1",
     provider: "OpenAI",
     iconName: "openai",
-    isPremium: false,
+    isPremium: true,
     enabled: true,
     capabilities: {
       supportsImageUpload: true,

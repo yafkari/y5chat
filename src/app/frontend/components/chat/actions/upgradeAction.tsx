@@ -8,12 +8,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 
-export default function UpgradeAction({ 
-  buttonElement, 
+export default function UpgradeAction({
+  buttonElement,
   callToAction,
   open,
-  onOpenChange
-}: { 
+  onOpenChange,
+}: {
   buttonElement: React.ReactNode;
   callToAction: string;
   open?: boolean;
@@ -29,28 +29,22 @@ export default function UpgradeAction({
       console.error("Subscription failed:", error);
     }
   };
-  
+
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
-        <DropdownMenuTrigger asChild>{buttonElement}</DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 p-4">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-lg">Upgrade to Pro</h3>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {callToAction}
-            </p>
-            <Button 
-              onClick={handleUpgrade}
-              className="w-full"
-              size="sm"
-            >
-              Upgrade now
-            </Button>
+      <DropdownMenuTrigger asChild>{buttonElement}</DropdownMenuTrigger>
+      <DropdownMenuContent className="w-80 p-4">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h3 className="font-semibold text-lg">Upgrade to Pro</h3>
           </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <p className="text-sm text-muted-foreground">{callToAction}</p>
+          <Button onClick={handleUpgrade} className="w-full" size="sm">
+            Upgrade now
+          </Button>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

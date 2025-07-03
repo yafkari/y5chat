@@ -30,6 +30,8 @@ import {
   Qwen,
 } from "@/components/icons";
 import { getEnabledModels } from "@/app/backend/lib/models";
+import { useSessionQuery } from "convex-helpers/react/sessions";
+import { api } from "@/convex/_generated/api";
 
 // Icon mapping for rendering
 const iconMap = {
@@ -120,9 +122,7 @@ export default function ModelActionDropdown({
   hasImages = false,
 }: ModelActionDropdownProps) {
   const [, setIsDropdownOpen] = useState(false);
-  
-  // TODO: add tiers
-  const isFree = true;
+  const isUserSubscribed = useSessionQuery(api.users.isUserSubscribed);
   
   const currentModel = getModelById(currentModelId);
   
@@ -218,12 +218,12 @@ export default function ModelActionDropdown({
                   <DropdownMenuItem 
                     key={model.id} 
                     onClick={() => {
-                      if (isFree && model.isPremium) return;
+                      if (!isUserSubscribed && model.isPremium) return;
                       onAction(model.id);
                     }}
                     className={cn(
                       "p-3 cursor-pointer relative",
-                      isFree && model.isPremium && "opacity-50 cursor-not-allowed"
+                      !isUserSubscribed && model.isPremium && "opacity-50 cursor-not-allowed"
                     )}
                   >
                     <div className="flex items-start gap-3 w-full">

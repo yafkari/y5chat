@@ -44,8 +44,8 @@ import {
   useSessionQuery,
 } from "convex-helpers/react/sessions";
 import { api } from "@/convex/_generated/api";
-import { Link } from "react-router";
 import { AI_MODELS, getEnabledModels, modelSupportsFeature, type AIModelConfig } from "@/app/backend/lib/models";
+import { useAction } from "convex/react";
 
 // Icon mapping for rendering
 const iconMap = {
@@ -142,8 +142,17 @@ export default function ModelSelector({
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  // TODO add tiers
-  const isFree = true;
+  const payAction = useAction(api.stripe.pay);
+  const isUserSubscribed = useSessionQuery(api.users.isUserSubscribed);
+
+  const handleUpgrade = async () => {
+    try {
+      const url = await payAction();
+      window.location.href = url
+    } catch (error) {
+      console.error("Subscription failed:", error);
+    }
+  };
 
   const selectedModel = useSessionQuery(api.userPreferences.getSelectedModel);
   const setSelectedModel = useSessionMutation(
@@ -305,12 +314,12 @@ export default function ModelSelector({
                 {filteredModels.map((model) => (
                   <Tooltip
                     key={model.id}
-                    open={isFree && model.isPremium ? undefined : false}
+                    open={!isUserSubscribed && model.isPremium ? undefined : false}
                   >
                     <TooltipTrigger asChild>
                       <div
                         onClick={() => {
-                          if (isFree && model.isPremium) return;
+                          if (!isUserSubscribed && model.isPremium) return;
                           handleModelSelect(model);
                         }}
                         className={cn(
@@ -318,7 +327,7 @@ export default function ModelSelector({
                           selectedModel === model.id
                             ? "bg-secondary/30 ring-primary dark:ring-primary/50"
                             : "hover:bg-secondary/20 cursor-pointer",
-                          isFree &&
+                            !isUserSubscribed &&
                             model.isPremium &&
                             "opacity-50 cursor-not-allowed"
                         )}
@@ -356,7 +365,7 @@ export default function ModelSelector({
                                 <TooltipTrigger
                                   asChild
                                   className={
-                                    isFree && model.isPremium
+                                    !isUserSubscribed && model.isPremium
                                       ? "pointer-events-none"
                                       : ""
                                   }
@@ -379,7 +388,7 @@ export default function ModelSelector({
                                   <TooltipTrigger
                                     asChild
                                     className={
-                                      isFree && model.isPremium
+                                      !isUserSubscribed && model.isPremium
                                         ? "pointer-events-none"
                                         : ""
                                     }
@@ -398,7 +407,7 @@ export default function ModelSelector({
                                   <TooltipTrigger
                                     className={cn(
                                       "w-6 h-6 p-1 rounded-full flex items-center justify-center",
-                                      isFree && model.isPremium
+                                      !isUserSubscribed && model.isPremium
                                         ? "pointer-events-none"
                                         : ""
                                     )}
@@ -415,7 +424,7 @@ export default function ModelSelector({
                                   <TooltipTrigger
                                     className={cn(
                                       "w-6 h-6 p-1 rounded-full flex items-center justify-center",
-                                      isFree &&
+                                      !isUserSubscribed &&
                                         model.isPremium &&
                                         "pointer-events-none"
                                     )}
@@ -432,7 +441,7 @@ export default function ModelSelector({
                                   <TooltipTrigger
                                     className={cn(
                                       "w-6 h-6 p-1 rounded-full flex items-center justify-center",
-                                      isFree && model.isPremium
+                                      !isUserSubscribed && model.isPremium
                                         ? "pointer-events-none"
                                         : ""
                                     )}
@@ -450,16 +459,13 @@ export default function ModelSelector({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {isFree && model.isPremium && (
+                      {!isUserSubscribed && model.isPremium && (
                         <p>
                           This model is only available to premium users.
                           <br />
-                          <Link
-                            to="/upgrade"
-                            className="underline underline-offset-2"
-                          >
+                          <Button variant="link" onClick={handleUpgrade} className="p-0 underline text-secondary hover:text-secondary/80">
                             Upgrade now
-                          </Link>
+                          </Button>
                         </p>
                       )}
                     </TooltipContent>
