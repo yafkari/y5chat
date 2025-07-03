@@ -34,6 +34,7 @@ export function NavUser() {
   const user = useSessionQuery(api.users.getCurrentUser);
   const { signIn, signOut } = useAuthActions();
   const navigate = useNavigate();
+  const { open } = useSidebar();
 
   const payAction = useAction(api.stripe.pay);
 
@@ -114,7 +115,7 @@ export function NavUser() {
             {user === null ? (
               <DropdownMenuItem>
                 <LogInIcon />
-                Log in
+                {open ? "Log in" : ""}
               </DropdownMenuItem>
             ) : (
               <>

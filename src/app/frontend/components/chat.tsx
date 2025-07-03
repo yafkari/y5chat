@@ -628,7 +628,7 @@ export default function Chat() {
           "flex-1 flex flex-col relative overflow-hidden",
           open &&
             !isMobile &&
-            "border-l-2 border-primary/90 w-full max-w-[calc(100vw-var(--sidebar-width))] xmx-auto"
+            "border-l border-primary/10 w-full max-w-[calc(100vw-var(--sidebar-width))] xmx-auto"
         )}
       >
         <div

@@ -71,7 +71,8 @@ function Sidebar({ ...props }: SidebarProps) {
           className={cn(
             "px-2 pr-1 overflow-y-auto",
             "scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-primary/90 dark:scrollbar-thumb-secondary scrollbar-track-transparent",
-            !isSidebarOpen && "pl-1"
+            !isSidebarOpen && "pl-1",
+            isSidebarOpen && "pr-2"
           )}
         >
           {!isSidebarOpen && (
