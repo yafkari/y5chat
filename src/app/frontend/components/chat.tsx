@@ -23,7 +23,6 @@ import useEphemeralSettings from "@/hooks/use-ephemeral-settings";
 import { modelSupportsFeature } from "@/app/backend/lib/models";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Turnstile } from "next-turnstile";
 
 export default function Chat() {
   const { threadId } = useParams();
@@ -33,7 +32,7 @@ export default function Chat() {
   const navigate = useNavigate();
   const { isWebSearch, isImageGeneration } = useEphemeralSettings();
   const messages = useSessionQuery(api.messages.getByThreadId, { threadId });
-  const [captchaToken, setCaptchaToken] = useState<string>();
+  const [captchaToken, setCaptchaToken] = useState<string>("dummy");
 
   // Add abort controller ref for stopping streams in chat operations
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -79,10 +78,8 @@ export default function Chat() {
   }, []);
 
   const resetCaptcha = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    window.turnstile?.reset();
-    setCaptchaToken(undefined);
+    // window.turnstile?.reset();
+    // setCaptchaToken(undefined);
   }, []);
 
   const handleNewThread = useCallback(() => {
@@ -786,7 +783,7 @@ export default function Chat() {
           handleStopStreaming={handleStop}
         />
 
-        <Turnstile
+        {/* <Turnstile
           siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
           onVerify={setCaptchaToken}
           sandbox={process.env.NODE_ENV === "development"}
@@ -798,7 +795,7 @@ export default function Chat() {
             toast.error("Security check failed. Please refresh the page and try again.");
             console.error(e);
           }}
-        />
+        /> */}
       </div>
     </>
   );

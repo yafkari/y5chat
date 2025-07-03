@@ -9,7 +9,6 @@ import { redis } from "@/app/backend/lib/redis";
 import { SessionId } from "convex-helpers/server/sessions";
 import { Id } from "@/convex/_generated/dataModel";
 import { getDownloadSignedUrl } from "@/app/backend/lib/s3";
-import { validateTurnstileToken } from "next-turnstile";
 
 export const maxDuration = 60;
 
@@ -72,15 +71,15 @@ export async function POST(req: Request) {
     return new Response("Missing captcha token", { status: 400 });
   }
 
-  const captchaResult = await validateTurnstileToken({
-    token: data.captchaToken,
-    secretKey: process.env.TURNSTILE_SECRET_KEY!,
-  });
+  // const captchaResult = await validateTurnstileToken({
+  //   token: data.captchaToken,
+  //   secretKey: process.env.TURNSTILE_SECRET_KEY!,
+  // });
 
-  if (!captchaResult.success) {
-    // TODO Set message in convex to be "captcha_failed"
-    return new Response("Invalid captcha token", { status: 400 });
-  }
+  // if (!captchaResult.success) {
+  //   // TODO Set message in convex to be "captcha_failed"
+  //   return new Response("Invalid captcha token", { status: 400 });
+  // }
 
   const {
     messages,
