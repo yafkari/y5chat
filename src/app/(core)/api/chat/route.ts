@@ -81,7 +81,7 @@ export async function POST(req: Request) {
   //   return new Response("Invalid captcha token", { status: 400 });
   // }
 
-  const {
+  let {
     messages,
     threadMetadata,
     responseMessageId,
@@ -178,7 +178,7 @@ export async function POST(req: Request) {
   }
 
   if (!Object.keys(AI_MODELS).includes(model)) {
-    return new Response("Invalid model", { status: 400 });
+    model = "gemini_2_flash";
   }
 
   // Add the response message placeholder
