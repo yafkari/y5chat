@@ -25,7 +25,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
       }
 
       // Create new authenticated user (no linking with anonymous users)
-      return await ctx.db.insert("users", {
+      const userId = await ctx.db.insert("users", {
         name: typeof args.profile.name === 'string' ? args.profile.name : "User",
         email: typeof args.profile.email === 'string' ? args.profile.email : undefined,
         image: typeof args.profile.image === 'string' ? args.profile.image : undefined,
@@ -34,6 +34,13 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         createdAt: Date.now(),
         userId: args.profile.sub as string,
       });
+
+      await ctx.db.insert("userPreferences", {
+        userId,
+        selectedModel: "gemini_2_flash",
+      })
+
+      return userId;
     },
   },
 }); 
