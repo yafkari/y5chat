@@ -32,7 +32,7 @@ export default function Chat() {
   const navigate = useNavigate();
   const { isWebSearch, isImageGeneration } = useEphemeralSettings();
   const messages = useSessionQuery(api.messages.getByThreadId, { threadId });
-  const [captchaToken,] = useState<string>("dummy");
+  const [captchaToken] = useState<string>("dummy");
 
   // Add abort controller ref for stopping streams in chat operations
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -92,7 +92,9 @@ export default function Chat() {
 
       // Check if captcha token is available
       if (!captchaToken) {
-        toast.error("Please wait for the security check to complete before regenerating messages");
+        toast.error(
+          "Please wait for the security check to complete before regenerating messages"
+        );
         return;
       }
 
@@ -219,9 +221,14 @@ export default function Chat() {
             try {
               const errorData = await response.json();
               if (errorData.error && errorData.error.includes("captcha")) {
-                toast.error("Security check failed. Please refresh the page and try again.");
+                toast.error(
+                  "Security check failed. Please refresh the page and try again."
+                );
               } else {
-                toast.error(errorData.error || "Invalid request. Please try regenerating again.");
+                toast.error(
+                  errorData.error ||
+                    "Invalid request. Please try regenerating again."
+                );
               }
             } catch {
               toast.error("Invalid request. Please try regenerating again.");
@@ -273,7 +280,9 @@ export default function Chat() {
 
       // Check if captcha token is available
       if (!captchaToken) {
-        toast.error("Please wait for the security check to complete before branching conversations");
+        toast.error(
+          "Please wait for the security check to complete before branching conversations"
+        );
         return;
       }
 
@@ -379,9 +388,14 @@ export default function Chat() {
             try {
               const errorData = await response.json();
               if (errorData.error && errorData.error.includes("captcha")) {
-                toast.error("Security check failed. Please refresh the page and try again.");
+                toast.error(
+                  "Security check failed. Please refresh the page and try again."
+                );
               } else {
-                toast.error(errorData.error || "Invalid request. Please try branching again.");
+                toast.error(
+                  errorData.error ||
+                    "Invalid request. Please try branching again."
+                );
               }
             } catch {
               toast.error("Invalid request. Please try branching again.");
@@ -434,7 +448,9 @@ export default function Chat() {
 
       // Check if captcha token is available
       if (!captchaToken) {
-        toast.error("Please wait for the security check to complete before editing messages");
+        toast.error(
+          "Please wait for the security check to complete before editing messages"
+        );
         return;
       }
 
@@ -537,9 +553,14 @@ export default function Chat() {
             try {
               const errorData = await response.json();
               if (errorData.error && errorData.error.includes("captcha")) {
-                toast.error("Security check failed. Please refresh the page and try again.");
+                toast.error(
+                  "Security check failed. Please refresh the page and try again."
+                );
               } else {
-                toast.error(errorData.error || "Invalid request. Please try editing again.");
+                toast.error(
+                  errorData.error ||
+                    "Invalid request. Please try editing again."
+                );
               }
             } catch {
               toast.error("Invalid request. Please try editing again.");

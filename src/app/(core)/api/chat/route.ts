@@ -68,7 +68,6 @@ export async function POST(req: Request) {
   const data = await req.json();
 
   if (!data.captchaToken) {
-    
     return new Response("Missing captcha token", { status: 400 });
   }
 
@@ -101,10 +100,10 @@ export async function POST(req: Request) {
 
   // Get client IP for rate limiting
   const headersList = await headers();
-  const clientIP = headersList.get("x-forwarded-for") || 
-                   headersList.get("x-real-ip") || 
-                   headersList.get("cf-connecting-ip") ||
-                   "unknown";
+  const clientIP = headersList.get("x-forwarded-for") ||
+    headersList.get("x-real-ip") ||
+    headersList.get("cf-connecting-ip") ||
+    "unknown";
 
   // Check if anonymous users are allowed when no token is provided
   if (!token && process.env.ALLOW_ANONYMOUS_USERS !== "true") {
@@ -114,7 +113,7 @@ export async function POST(req: Request) {
   let userId: string;
   let isUserSubscribed: boolean = false;
   let isAuthenticated: boolean = false;
-  
+
   if (token) {
     // Set auth token for Convex client and validate it by doing a query
     SERVER_CONVEX_CLIENT.setAuth(token);
@@ -146,10 +145,10 @@ export async function POST(req: Request) {
   // Apply rate limiting
   const rateLimitId = isAuthenticated ? userId : `ip:${clientIP}`;
   const rateLimiter = isAuthenticated ? redis.rateLimiterAuth : redis.rateLimiterAnon;
-  
+
   try {
     const { success, limit, reset, remaining } = await rateLimiter.limit(rateLimitId);
-    
+
     if (!success) {
       return new Response(
         JSON.stringify({
