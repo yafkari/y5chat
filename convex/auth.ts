@@ -14,6 +14,9 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
     async createOrUpdateUser(ctx: MutationCtx, args) {
       // If user already exists (updating), just return the existing user ID
       if (args.existingUserId) {
+
+        console.log("updating existing user", args);
+
         // Update user info if needed
         await ctx.db.patch(args.existingUserId, {
           name: typeof args.profile.name === 'string' ? args.profile.name : undefined,

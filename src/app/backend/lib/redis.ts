@@ -1,7 +1,4 @@
-// import { Redis } from "@upstash/redis";
-
-// export const redis = Redis.fromEnv();
-
+"server-only";
 
 import Redis from "ioredis"
 

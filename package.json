@@ -68,6 +68,7 @@
     "react-syntax-highlighter": "^15.6.1",
     "react-textarea-autosize": "^8.5.9",
     "resumable-stream": "^2.2.1",
+    "server-only": "^0.0.1",
     "sonner": "^2.0.5",
     "stripe": "^18.3.0",
     "tailwind-merge": "^3.3.1",

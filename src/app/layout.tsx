@@ -14,7 +14,7 @@ export default function RootLayout({
         {/* <ReactScan /> */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

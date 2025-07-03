@@ -1,3 +1,5 @@
+"server-only";
+
 import { ConvexHttpClient } from "convex/browser";
 
 const address = process.env.NEXT_PUBLIC_CONVEX_URL as string;

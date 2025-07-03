@@ -1,3 +1,5 @@
+"server-only";
+
 import { AI_MODELS } from '@/app/backend/lib/models';
 import { Message as AiSdkMessage, generateText } from "ai"
 import { GenerateChatStreamInput } from "../(core)/api/chat/route";

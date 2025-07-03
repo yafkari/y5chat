@@ -176,6 +176,9 @@ importers:
       resumable-stream:
         specifier: ^2.2.1
         version: 2.2.1
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       sonner:
         specifier: ^2.0.5
         version: 2.0.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

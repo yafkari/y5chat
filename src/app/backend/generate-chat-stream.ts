@@ -1,3 +1,5 @@
+"server-only";
+
 import { api } from "@/convex/_generated/api";
 import SERVER_CONVEX_CLIENT from "@/app/backend/lib/SERVER_CONVEX_CLIENT";
 import {
