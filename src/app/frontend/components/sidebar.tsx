@@ -59,7 +59,7 @@ function Sidebar({ ...props }: SidebarProps) {
                       href="/"
                       className="relative flex h-8 w-24 items-center justify-center text-lg font-semibold text-primary select-none"
                     >
-                      Y5.chat
+                     Y5 Chat
                     </a>
                   </h1>
                 </SidebarMenuButton>
