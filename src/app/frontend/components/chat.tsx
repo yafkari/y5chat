@@ -180,6 +180,11 @@ export default function Chat() {
           ? modelSupportsFeature(modelToUse, "imageGeneration")
           : false;
 
+        let sessionId = localStorage.getItem("convex-session-id");
+        if (sessionId && sessionId.startsWith('"') && sessionId.endsWith('"')) {
+          sessionId = sessionId.slice(1, -1);
+        }
+
         // Make the streaming request
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -196,7 +201,7 @@ export default function Chat() {
             responseMessageId,
             streamId,
             model: modelToUse,
-            convexSessionId: localStorage.getItem("convex-session-id"),
+            convexSessionId: sessionId,
             modelParams: {
               reasoningEffort: "medium" as const,
               includeSearch: isWebSearch && supportsWebSearch,
@@ -346,7 +351,10 @@ export default function Chat() {
 
         // Navigate to the new thread immediately
         navigate(`/chat/${newThreadId}`);
-
+        let sessionId = localStorage.getItem("convex-session-id");
+        if (sessionId && sessionId.startsWith('"') && sessionId.endsWith('"')) {
+          sessionId = sessionId.slice(1, -1);
+        }
         // Make the streaming request for the new response
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -363,7 +371,7 @@ export default function Chat() {
             responseMessageId,
             streamId,
             model: modelToUse,
-            convexSessionId: localStorage.getItem("convex-session-id"),
+            convexSessionId: sessionId,
             modelParams: {
               reasoningEffort: "medium" as const,
               includeSearch: isWebSearch && supportsWebSearch,
@@ -512,6 +520,11 @@ export default function Chat() {
           ? modelSupportsFeature(selectedModel, "imageGeneration")
           : false;
 
+        let sessionId = localStorage.getItem("convex-session-id");
+        if (sessionId && sessionId.startsWith('"') && sessionId.endsWith('"')) {
+          sessionId = sessionId.slice(1, -1);
+        }
+
         // Make the streaming request
         const response = await fetch("/api/chat", {
           method: "POST",
@@ -528,7 +541,7 @@ export default function Chat() {
             responseMessageId,
             streamId,
             model: selectedModel,
-            convexSessionId: localStorage.getItem("convex-session-id"),
+            convexSessionId: sessionId,
             modelParams: {
               reasoningEffort: "medium" as const,
               includeSearch: isWebSearch && supportsWebSearch,

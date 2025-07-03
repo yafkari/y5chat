@@ -36,8 +36,6 @@ const UploadingAttachmentItem = ({
             headers: {
               "Content-Type": "application/json",
               ...(token && { Authorization: `Bearer ${token}` }),
-              "x-convex-session-id":
-                localStorage.getItem("convex-session-id") || "",
             },
             body: JSON.stringify({
               fileType: attachment.file.type,

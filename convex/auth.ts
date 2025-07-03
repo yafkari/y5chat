@@ -17,6 +17,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
           email: typeof args.profile.email === 'string' ? args.profile.email : undefined,
           image: typeof args.profile.picture === 'string' ? args.profile.picture : undefined,
           type: "authenticated",
+          userId: args.existingUserId
         });
         return args.existingUserId;
       }
