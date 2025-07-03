@@ -78,7 +78,7 @@ export function NavUser() {
         className="flex w-full select-none items-center gap-4 rounded-lg p-4 py-6"
         onClick={handleSignIn}
       >
-        <LogInIcon className="w-5 h-5" /> <span>Log in</span>
+        <LogInIcon className="w-5 h-5" /> <span>{open ? "Log in" : ""}</span>
       </Button>
     );
   }
