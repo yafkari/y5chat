@@ -14,7 +14,7 @@ export const getSelectedModel = authedQuery({
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
-    return userPreferences?.selectedModel ?? "gemini-2.0-flash";
+    return userPreferences?.selectedModel ?? "gemini_2_flash";
   },
 });
 
@@ -84,7 +84,7 @@ export const toggleFavoriteModel = authedMutation({
       // Create new preferences with the model as favorite
       await ctx.db.insert("userPreferences", {
         userId,
-        selectedModel: "gemini-2.0-flash", // default model
+        selectedModel: "gemini_2_flash", // default model
         favoriteModels: [args.model],
       });
     }
