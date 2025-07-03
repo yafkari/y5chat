@@ -9,6 +9,7 @@ import { redis } from "@/app/backend/lib/redis";
 import { SessionId } from "convex-helpers/server/sessions";
 import { Id } from "@/convex/_generated/dataModel";
 import { getDownloadSignedUrl } from "@/app/backend/lib/s3";
+import { headers } from "next/headers";
 
 export const maxDuration = 60;
 
@@ -98,6 +99,13 @@ export async function POST(req: Request) {
   const authHeader = req.headers.get("authorization");
   const token = authHeader?.startsWith("Bearer ") ? authHeader.replace("Bearer ", "") : null;
 
+  // Get client IP for rate limiting
+  const headersList = await headers();
+  const clientIP = headersList.get("x-forwarded-for") || 
+                   headersList.get("x-real-ip") || 
+                   headersList.get("cf-connecting-ip") ||
+                   "unknown";
+
   // Check if anonymous users are allowed when no token is provided
   if (!token && process.env.ALLOW_ANONYMOUS_USERS !== "true") {
     return new Response("Authentication required", { status: 401 });
@@ -105,6 +113,8 @@ export async function POST(req: Request) {
 
   let userId: string;
   let isUserSubscribed: boolean = false;
+  let isAuthenticated: boolean = false;
+  
   if (token) {
     // Set auth token for Convex client and validate it by doing a query
     SERVER_CONVEX_CLIENT.setAuth(token);
@@ -119,6 +129,7 @@ export async function POST(req: Request) {
         // Extract real user ID from Convex response
         userId = currentUser.type === "authenticated" ? currentUser._id : `anon:${convexSessionId}`;
         isUserSubscribed = (currentUser?.subscriptionId?.length ?? 0) > 0 && (currentUser?.subscriptionEndsOn ?? 0) > Date.now();
+        isAuthenticated = currentUser.type === "authenticated";
       } else {
         return new Response("Unable to authenticate user", { status: 401 });
       }
@@ -129,6 +140,38 @@ export async function POST(req: Request) {
   } else {
     // Anonymous user
     userId = `anon:${convexSessionId}`;
+    isAuthenticated = false;
+  }
+
+  // Apply rate limiting
+  const rateLimitId = isAuthenticated ? userId : `ip:${clientIP}`;
+  const rateLimiter = isAuthenticated ? redis.rateLimiterAuth : redis.rateLimiterAnon;
+  
+  try {
+    const { success, limit, reset, remaining } = await rateLimiter.limit(rateLimitId);
+    
+    if (!success) {
+      return new Response(
+        JSON.stringify({
+          error: "Rate limit exceeded",
+          limit,
+          reset,
+          remaining,
+        }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": new Date(reset).toISOString(),
+          },
+        }
+      );
+    }
+  } catch (error) {
+    console.error("Rate limiting error:", error);
+    // Continue without rate limiting if Redis is unavailable
   }
 
   if (!isUserSubscribed && (modelParams.includeImageGeneration || modelParams.includeSearch || messages.some(msg => msg.attachments?.length > 0))) {

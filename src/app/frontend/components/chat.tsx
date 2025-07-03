@@ -32,7 +32,7 @@ export default function Chat() {
   const navigate = useNavigate();
   const { isWebSearch, isImageGeneration } = useEphemeralSettings();
   const messages = useSessionQuery(api.messages.getByThreadId, { threadId });
-  const [captchaToken, setCaptchaToken] = useState<string>("dummy");
+  const [captchaToken,] = useState<string>("dummy");
 
   // Add abort controller ref for stopping streams in chat operations
   const abortControllerRef = useRef<AbortController | null>(null);
