@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  BadgeCheck,
-  Bell,
-  CreditCard,
   LogOut,
   Sparkles,
   LogInIcon,
