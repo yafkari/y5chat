@@ -151,11 +151,11 @@ const userTable = defineTable({
 
 const userPreferencesTable = defineTable({
   userId: v.string(),
+  selectedModel: v.string(),
+  favoriteModels: v.optional(v.array(v.string())),
   name: v.optional(v.string()),
   selectedTraits: v.optional(v.array(v.string())),
   additionalInfo: v.optional(v.string()),
-  selectedModel: v.string(),
-  favoriteModels: v.optional(v.array(v.string())),
   theme: v.optional(
     v.union(
       v.literal("system"),
@@ -167,22 +167,9 @@ const userPreferencesTable = defineTable({
       v.literal("liquid")
     )
   ),
-  // mainFont: v.optional(v.union(
-  //   v.literal("proxima"),
-  //   v.literal("atkinson"),
-  //   v.literal("dyslexic"),
-  //   v.literal("system")
-  // )),
-  // codeFont: v.optional(v.union(
-  //   v.literal("berkeley"),
-  //   v.literal("intel"),
-  //   v.literal("atkinsonMono"),
-  //   v.literal("system")
-  // )),
   disableHorizontalLines: v.optional(v.boolean()),
   streamerMode: v.optional(v.boolean()),
   nerdMode: v.optional(v.boolean()),
-  syncEnabled: v.optional(v.boolean()),
 }).index("by_userId", ["userId"]);
 
 const threadsTable = defineTable({
@@ -249,7 +236,6 @@ const messagesTable = defineTable({
   attachmentIds: v.array(v.id("attachments")),
   modelParams: v.optional(ModelParams),
   providerMetadata: v.optional(providerMetadataValue),
-  backfill: v.optional(v.boolean()),
   resumableStreamId: v.optional(v.string()),
   timeToFirstToken: v.optional(v.number()),
   tokensPerSecond: v.optional(v.number()),

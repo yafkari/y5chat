@@ -120,6 +120,12 @@ export async function getOrCreateUser(
       chatCount: 10,
       createdAt: Date.now(),
     });
+
+    await ctx.db.insert("userPreferences", {
+      userId: anonymousUserId,
+      selectedModel: "gemini_2_flash",
+    });
+
     anonymousUser = await ctx.db.get(anonymousUserId);
   }
 
