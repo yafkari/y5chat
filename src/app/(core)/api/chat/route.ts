@@ -9,6 +9,7 @@ import { redis } from "@/app/backend/lib/redis";
 import { SessionId } from "convex-helpers/server/sessions";
 import { Id } from "@/convex/_generated/dataModel";
 import { getDownloadSignedUrl } from "@/app/backend/lib/s3";
+import { validateTurnstileToken } from "next-turnstile";
 
 export const maxDuration = 60;
 
@@ -43,7 +44,6 @@ export type GenerateChatStreamInput = {
   convexSessionId?: string;
   modelParams: ModelParams;
   preferences?: Partial<UserPreferences>;
-  hcaptchaToken?: string;
   userInfo: {
     id?: string;
     timezone?: string;
@@ -67,29 +67,19 @@ export type GenerateChatStreamInput = {
 export async function POST(req: Request) {
   const data = await req.json();
 
-  if (!data.hcaptchaToken) {
-    return new Response("Missing hcaptcha token", { status: 400 });
+  if (!data.captchaToken) {
+    
+    return new Response("Missing captcha token", { status: 400 });
   }
 
-  const captchaPayload = {
-    secret: process.env.HCAPTCHA_SECRET_KEY,
-    response: data.hcaptchaToken,
-  }
+  const captchaResult = await validateTurnstileToken({
+    token: data.captchaToken,
+    secretKey: process.env.TURNSTILE_SECRET_KEY!,
+  });
 
-  if (process.env.NODE_ENV !== "development") {
-    const hcaptchaResponse = await fetch(`https://api.hcaptcha.com/siteverify`, {
-      method: "POST",
-      body: JSON.stringify(captchaPayload),
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
-
-    const hcaptchaResponseData = await hcaptchaResponse.json();
-    if (!hcaptchaResponseData.success) {
-      console.error("Invalid hcaptcha token", hcaptchaResponseData);
-      return new Response("Invalid hcaptcha token", { status: 400 });
-    }
+  if (!captchaResult.success) {
+    // TODO Set message in convex to be "captcha_failed"
+    return new Response("Invalid captcha token", { status: 400 });
   }
 
   const {

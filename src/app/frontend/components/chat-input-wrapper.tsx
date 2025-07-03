@@ -36,7 +36,7 @@ export default function ChatInputWrapper({
   chatInputRef,
   scrollContainerRef,
   setStreamingContent,
-  captchaTokenRef,
+  captchaToken,
   onCallback,
   streamingContent,
   handleStopStreaming,
@@ -53,7 +53,7 @@ export default function ChatInputWrapper({
       streamingImages: { base64: string; fileKey: string; alt: string }[];
     } | null>
   >;
-  captchaTokenRef: React.RefObject<string | null>;
+  captchaToken: string | undefined;
   onCallback: () => void;
   streamingContent: {
     messageId: string;
@@ -325,7 +325,7 @@ export default function ChatInputWrapper({
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           languages: navigator.languages,
         },
-        hcaptchaToken: captchaTokenRef.current || undefined,
+        captchaToken: captchaToken || undefined,
       });
 
       // Make the streaming request

@@ -21,9 +21,9 @@ import EmptyState from "./chat/empty-state";
 import { handleStreamingResponse } from "../utils/helpers";
 import useEphemeralSettings from "@/hooks/use-ephemeral-settings";
 import { modelSupportsFeature } from "@/app/backend/lib/models";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Turnstile } from "next-turnstile";
 
 export default function Chat() {
   const { threadId } = useParams();
@@ -33,8 +33,7 @@ export default function Chat() {
   const navigate = useNavigate();
   const { isWebSearch, isImageGeneration } = useEphemeralSettings();
   const messages = useSessionQuery(api.messages.getByThreadId, { threadId });
-  const captchaRef = useRef<HCaptcha>(null);
-  const captchaTokenRef = useRef<string>(null);
+  const [captchaToken, setCaptchaToken] = useState<string>();
 
   // Add abort controller ref for stopping streams in chat operations
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -79,16 +78,11 @@ export default function Chat() {
     }
   }, []);
 
-  const onLoad = () => {
-    // this reaches out to the hCaptcha JS API and runs the
-    // execute function on it. you can use other functions as
-    // documented here:
-    // https://docs.hcaptcha.com/configuration#jsapi
-    captchaRef.current?.execute();
-  };
-
   const resetCaptcha = useCallback(() => {
-    captchaRef.current?.resetCaptcha();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    window.turnstile?.reset();
+    setCaptchaToken(undefined);
   }, []);
 
   const handleNewThread = useCallback(() => {
@@ -210,7 +204,7 @@ export default function Chat() {
             },
             isRegeneration: true, // Flag to indicate this is a regeneration
             ...(updatedUserMessage && { editedMessage: updatedUserMessage }), // Pass updated user message if it exists
-            hcaptchaToken: captchaTokenRef.current || undefined,
+            captchaToken: captchaToken || undefined,
           }),
         });
 
@@ -230,7 +224,7 @@ export default function Chat() {
         );
       } catch (error) {
         // Handle abort error gracefully
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error instanceof Error && error.name === "AbortError") {
           console.log("Regeneration was cancelled by user");
           return; // Don't show error toast for user-initiated cancellation
         }
@@ -251,7 +245,7 @@ export default function Chat() {
       deleteMessagesFromIndex,
       isWebSearch,
       isImageGeneration,
-      captchaTokenRef,
+      captchaToken,
       resetCaptcha,
     ]
   );
@@ -350,7 +344,7 @@ export default function Chat() {
             },
             isRegeneration: true, // This is similar to regeneration in terms of not needing to persist user messages
             ...(updatedUserMessage && { editedMessage: updatedUserMessage }), // Pass updated user message if it exists
-            hcaptchaToken: captchaTokenRef.current || undefined,
+            captchaToken: captchaToken || undefined,
           }),
         });
 
@@ -369,7 +363,7 @@ export default function Chat() {
         );
       } catch (error) {
         // Handle abort error gracefully
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error instanceof Error && error.name === "AbortError") {
           console.log("Branch operation was cancelled by user");
           return; // Don't show error toast for user-initiated cancellation
         }
@@ -392,7 +386,7 @@ export default function Chat() {
       navigate,
       isWebSearch,
       isImageGeneration,
-      captchaTokenRef,
+      captchaToken,
       resetCaptcha,
     ]
   );
@@ -488,7 +482,7 @@ export default function Chat() {
             },
             isRegeneration: true, // This is similar to regeneration
             editedMessage: updatedMessage, // Pass the edited message to be persisted
-            hcaptchaToken: captchaTokenRef.current || undefined,
+            captchaToken: captchaToken || undefined,
           }),
         });
 
@@ -507,7 +501,7 @@ export default function Chat() {
         );
       } catch (error) {
         // Handle abort error gracefully
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error instanceof Error && error.name === "AbortError") {
           console.log("Edit operation was cancelled by user");
           return; // Don't show error toast for user-initiated cancellation
         }
@@ -528,7 +522,7 @@ export default function Chat() {
       deleteMessagesFromIndex,
       isWebSearch,
       isImageGeneration,
-      captchaTokenRef,
+      captchaToken,
       resetCaptcha,
     ]
   );
@@ -632,7 +626,8 @@ export default function Chat() {
       <div
         className={cn(
           "flex-1 flex flex-col relative overflow-hidden",
-          open && !isMobile &&
+          open &&
+            !isMobile &&
             "border-l-2 border-primary/90 w-full max-w-[calc(100vw-var(--sidebar-width))] xmx-auto"
         )}
       >
@@ -725,26 +720,18 @@ export default function Chat() {
           threadId={threadId}
           scrollContainerRef={scrollContainerRef}
           setStreamingContent={setStreamingContent}
-          captchaTokenRef={captchaTokenRef}
+          captchaToken={captchaToken}
           onCallback={resetCaptcha}
           streamingContent={streamingContent}
           handleStopStreaming={handleStop}
         />
 
-        <HCaptcha
-          sitekey={
-            process.env.NODE_ENV === "development"
-              ? "10000000-ffff-ffff-ffff-000000000001"
-              : process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ""
-          }
-          onLoad={onLoad}
-          onVerify={(token) => {
-            if (token) {
-              captchaTokenRef.current = token;
-            }
-          }}
-          size="invisible"
-          ref={captchaRef}
+        <Turnstile
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+          onVerify={setCaptchaToken}
+          sandbox={process.env.NODE_ENV === "development"}
+          retry="auto"
+          refreshExpired="auto"
         />
       </div>
     </>
