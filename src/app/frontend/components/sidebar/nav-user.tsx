@@ -30,11 +30,13 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { useAction } from "convex/react";
+import { useNavigate } from "react-router";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const user = useSessionQuery(api.users.getCurrentUser);
   const { signIn, signOut } = useAuthActions();
+  const navigate = useNavigate();
 
   const payAction = useAction(api.stripe.pay);
   
@@ -51,6 +53,17 @@ export function NavUser() {
       console.error("Subscription failed:", error);
     }
   };
+  
+  const handleSignIn = async () => {
+    await signIn("google", {
+      redirectTo: `${window.location.origin}/chat`,
+    })
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/chat");
+  };
 
   if (user === undefined) {
     return (
@@ -65,11 +78,7 @@ export function NavUser() {
     return (
       <Button
         className="flex w-full select-none items-center gap-4 rounded-lg p-4 py-6"
-        onClick={() =>
-          void signIn("google", {
-            redirectTo: "/chat",
-          })
-        }
+        onClick={handleSignIn}
       >
         <LogInIcon className="w-5 h-5" />{" "}
         <span>Log in</span>
@@ -150,8 +159,8 @@ export function NavUser() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut}>
-                  <LogOut />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut  />
                   Log out
                 </DropdownMenuItem>
               </>
