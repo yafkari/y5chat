@@ -791,7 +791,13 @@ export default function Chat() {
           onVerify={setCaptchaToken}
           sandbox={process.env.NODE_ENV === "development"}
           retry="auto"
+          retryInterval={2500}
           refreshExpired="auto"
+          onExpire={resetCaptcha}
+          onError={(e) => {
+            toast.error("Security check failed. Please refresh the page and try again.");
+            console.error(e);
+          }}
         />
       </div>
     </>
