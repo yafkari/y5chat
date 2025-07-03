@@ -44,7 +44,12 @@ import {
   useSessionQuery,
 } from "convex-helpers/react/sessions";
 import { api } from "@/convex/_generated/api";
-import { AI_MODELS, getEnabledModels, modelSupportsFeature, type AIModelConfig } from "@/app/backend/lib/models";
+import {
+  AI_MODELS,
+  getEnabledModels,
+  modelSupportsFeature,
+  type AIModelConfig,
+} from "@/app/backend/lib/models";
 import { useAction } from "convex/react";
 
 // Icon mapping for rendering
@@ -148,7 +153,7 @@ export default function ModelSelector({
   const handleUpgrade = async () => {
     try {
       const url = await payAction();
-      window.location.href = url
+      window.location.href = url;
     } catch (error) {
       console.error("Subscription failed:", error);
     }
@@ -175,7 +180,7 @@ export default function ModelSelector({
 
   // Get models from the unified configuration
   const enabledModels = getEnabledModels();
-  const models = Object.entries(enabledModels).map(([id, config]) => 
+  const models = Object.entries(enabledModels).map(([id, config]) =>
     convertToUIModel(id, config)
   );
 
@@ -186,7 +191,7 @@ export default function ModelSelector({
       if (activeTab === "favorites") return favoriteModels.includes(model.id);
       return model.category === activeTab;
     })();
-    
+
     if (!passesTabFilter) return false;
 
     // Filter by search
@@ -198,15 +203,30 @@ export default function ModelSelector({
 
     // Filter by active filters - these should always be applied
     if (activeFilters.includes("premium") && !model.isPremium) return false;
-    if (activeFilters.includes("image") && !modelSupportsFeature(model.id, 'imageUpload'))
+    if (
+      activeFilters.includes("image") &&
+      !modelSupportsFeature(model.id, "imageUpload")
+    )
       return false;
-    if (activeFilters.includes("pdf") && !modelSupportsFeature(model.id, 'pdfUpload')) 
+    if (
+      activeFilters.includes("pdf") &&
+      !modelSupportsFeature(model.id, "pdfUpload")
+    )
       return false;
-    if (activeFilters.includes("search") && !modelSupportsFeature(model.id, 'webSearch'))
+    if (
+      activeFilters.includes("search") &&
+      !modelSupportsFeature(model.id, "webSearch")
+    )
       return false;
-    if (activeFilters.includes("reasoning") && !modelSupportsFeature(model.id, 'reasoning'))
+    if (
+      activeFilters.includes("reasoning") &&
+      !modelSupportsFeature(model.id, "reasoning")
+    )
       return false;
-    if (activeFilters.includes("image-generation") && !modelSupportsFeature(model.id, 'imageGeneration'))
+    if (
+      activeFilters.includes("image-generation") &&
+      !modelSupportsFeature(model.id, "imageGeneration")
+    )
       return false;
 
     return true;
@@ -225,6 +245,12 @@ export default function ModelSelector({
     toggleFavoriteModel({ model: modelId });
   };
 
+  if (selectedModel === undefined) {
+    return null;
+  }
+
+  const selectedModelWithFallback = selectedModel ?? "gemini_2_flash";
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -233,8 +259,8 @@ export default function ModelSelector({
           size="xs"
           className="py-4 !px-2 hover:bg-primary/10 rounded-full"
         >
-          {getModelById(selectedModel)?.icon}
-          {getModelById(selectedModel)?.name}
+          {getModelById(selectedModelWithFallback)?.icon}
+          {getModelById(selectedModelWithFallback)?.name}
         </Button>
       </DialogTrigger>
       <DialogContent className="w-screen max-w-full sm:max-w-4xl sm:w-[90vw] h-screen sm:h-[66vh] p-0 border-0 shadow-2xl flex flex-col rounded-none sm:rounded-lg">
@@ -314,7 +340,9 @@ export default function ModelSelector({
                 {filteredModels.map((model) => (
                   <Tooltip
                     key={model.id}
-                    open={!isUserSubscribed && model.isPremium ? undefined : false}
+                    open={
+                      !isUserSubscribed && model.isPremium ? undefined : false
+                    }
                   >
                     <TooltipTrigger asChild>
                       <div
@@ -324,10 +352,10 @@ export default function ModelSelector({
                         }}
                         className={cn(
                           "p-4 rounded-lg transition-all hover:shadow-sm ring-2 ring-accent select-none relative",
-                          selectedModel === model.id
+                          selectedModelWithFallback === model.id
                             ? "bg-secondary/30 ring-primary dark:ring-primary/50"
                             : "hover:bg-secondary/20 cursor-pointer",
-                            !isUserSubscribed &&
+                          !isUserSubscribed &&
                             model.isPremium &&
                             "opacity-50 cursor-not-allowed"
                         )}
@@ -463,7 +491,11 @@ export default function ModelSelector({
                         <p>
                           This model is only available to premium users.
                           <br />
-                          <Button variant="link" onClick={handleUpgrade} className="p-0 underline text-secondary hover:text-secondary/80">
+                          <Button
+                            variant="link"
+                            onClick={handleUpgrade}
+                            className="p-0 underline text-secondary hover:text-secondary/80"
+                          >
                             Upgrade now
                           </Button>
                         </p>

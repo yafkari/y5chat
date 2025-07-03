@@ -37,12 +37,12 @@ export const addMessagesToThread = mutation({
     // Get or create user based on session
     const user = await getOrCreateUser(ctx, sessionId);
     const userIdString = getUserId(user);
-    
+
     // Check if thread exists, if not create it
     let existingThread = threadId ? await ctx.db
-        .query("threads")
-        .withIndex("by_threadId", (q) => q.eq("threadId", threadId))
-        .first() : null;
+      .query("threads")
+      .withIndex("by_threadId", (q) => q.eq("threadId", threadId))
+      .first() : null;
 
     if (!existingThread) {
       if (!user.chatCount || user.chatCount <= 0) {
@@ -63,7 +63,7 @@ export const addMessagesToThread = mutation({
         generationStatus: "pending" as const,
         visibility: "visible" as const,
         userId: userIdString, // Use formatted user ID
-        model: messages[0]?.model || "gemini-2.5-flash",
+        model: messages[0]?.model || "gemini_2_flash",
         pinned: false,
       });
       existingThread = await ctx.db.get(threadDoc);
@@ -132,22 +132,22 @@ export const send = mutation({
         lastMessageAt: Date.now(),
       });
     }
-    
-    const newMessage: Message = { 
+
+    const newMessage: Message = {
       parts: [
         {
           type: "text",
           text: text,
         }
-      ], 
-      role: "user" as const, 
+      ],
+      role: "user" as const,
       threadId: threadId ?? newThreadId ?? generateUUID(),
-      userId: userIdString, 
-      createdAt: Date.now(), 
-      model: "gpt-4o" as const, 
-      status: "pending" as const, 
-      messageId: generateUUID(), 
-      attachmentIds: [] 
+      userId: userIdString,
+      createdAt: Date.now(),
+      model: "gpt-4o" as const,
+      status: "pending" as const,
+      messageId: generateUUID(),
+      attachmentIds: []
     }
 
     await ctx.db.insert("messages", newMessage);
@@ -157,52 +157,52 @@ export const send = mutation({
 
 export const updateMessage = mutation({
   args: {
-      messageId: v.string(),
-      parts: v.optional(v.array(MessagePartValidator)),
-      userId: v.optional(v.string()),
-      providerMetadata: v.optional(v.any()),
-      sessionId: v.string(),
-      status: v.optional(MessageStatusValidator),
-      resumableStreamId: v.optional(v.string()),
-      serverError: v.optional(MessageValidator.fields.serverError),
+    messageId: v.string(),
+    parts: v.optional(v.array(MessagePartValidator)),
+    userId: v.optional(v.string()),
+    providerMetadata: v.optional(v.any()),
+    sessionId: v.string(),
+    status: v.optional(MessageStatusValidator),
+    resumableStreamId: v.optional(v.string()),
+    serverError: v.optional(MessageValidator.fields.serverError),
   },
   handler: async (ctx, args) => {
-      const message = await ctx.db
-          .query("messages")
-          .withIndex("by_messageId", 
-              (q) => q.eq("messageId", args.messageId)
-          ).first();
-      if (!message) throw new Error("Message not found");
+    const message = await ctx.db
+      .query("messages")
+      .withIndex("by_messageId",
+        (q) => q.eq("messageId", args.messageId)
+      ).first();
+    if (!message) throw new Error("Message not found");
 
-      // console.log("[CHAT] updating message", message);
-      // console.log("[CHAT] args", args);
+    // console.log("[CHAT] updating message", message);
+    // console.log("[CHAT] args", args);
 
-      // Do NOT update message if it has already been marked as done
-      // (handles update race conditions)
-      if (message.status === "done" || message.status === "error") {
-          // console.error("Message already done", message);
+    // Do NOT update message if it has already been marked as done
+    // (handles update race conditions)
+    if (message.status === "done" || message.status === "error") {
+      // console.error("Message already done", message);
 
-          // Don't throw because it might break server side on /api/chat
-          return;
-      }
+      // Don't throw because it might break server side on /api/chat
+      return;
+    }
 
-      const insert: {
-          parts?: MessagePart[];
-          reasoning?: string;
-          status?: Infer<typeof MessageStatusValidator>;
-          providerMetadata?: ProviderMetadata;
-          resumableStreamId?: string;
-          serverError?: Message["serverError"];
-      } = {};
+    const insert: {
+      parts?: MessagePart[];
+      reasoning?: string;
+      status?: Infer<typeof MessageStatusValidator>;
+      providerMetadata?: ProviderMetadata;
+      resumableStreamId?: string;
+      serverError?: Message["serverError"];
+    } = {};
 
-      if (args.parts) insert.parts = args.parts as MessagePart[];
-      if (args.status) insert.status = args.status;
-      if (args.providerMetadata) insert.providerMetadata = args.providerMetadata;
-      if (args.resumableStreamId) insert.resumableStreamId = args.resumableStreamId;
-      if (args.serverError) insert.serverError = args.serverError;
-      // console.log("[CHAT] Insert", insert);
+    if (args.parts) insert.parts = args.parts as MessagePart[];
+    if (args.status) insert.status = args.status;
+    if (args.providerMetadata) insert.providerMetadata = args.providerMetadata;
+    if (args.resumableStreamId) insert.resumableStreamId = args.resumableStreamId;
+    if (args.serverError) insert.serverError = args.serverError;
+    // console.log("[CHAT] Insert", insert);
 
-      await ctx.db.patch(message._id, insert);
+    await ctx.db.patch(message._id, insert);
 
   }
 })
@@ -229,7 +229,7 @@ export const deleteMessagesFromIndex = authedMutation({
 
     // Delete all messages from this index onwards
     const messagesToDelete = messages.slice(fromIndex);
-    
+
     for (const message of messagesToDelete) {
       await ctx.db.delete(message._id);
     }
@@ -251,7 +251,7 @@ export const createBranchedThread = authedMutation({
       .query("threads")
       .withIndex("by_threadId", (q) => q.eq("threadId", originalThreadId))
       .first();
-    
+
     if (!originalThread) {
       throw new Error("Original thread not found");
     }
@@ -270,7 +270,7 @@ export const createBranchedThread = authedMutation({
 
     // Get all messages up to (but not including) the branch point
     const messagesToCopy = messages.slice(0, fromIndex);
-    
+
     // Create the new branched thread
     // const newThread = await ctx.db.insert("threads", {
     await ctx.db.insert("threads", {
@@ -310,9 +310,9 @@ export const createBranchedThread = authedMutation({
       });
     }
 
-    return { 
+    return {
       newThreadId,
-      copiedMessagesCount: messagesToCopy.length 
+      copiedMessagesCount: messagesToCopy.length
     };
   },
 });
