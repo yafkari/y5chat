@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { CDN_URL_APPLE } from "./constants";
+import { CDN_URL_APPLE, CDN_URL_GOOGLE } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -21,7 +21,10 @@ export function emojiToUnicode(str: string) {
 }
 
 export function stringEmojiToImage(icon: string) {
-  return `${CDN_URL_APPLE}${emojiToUnicode(icon).join('-')}.png`
+  if (navigator && navigator.userAgent.indexOf('Mac OS X') !== -1) {
+    return `${CDN_URL_APPLE}${emojiToUnicode(icon).join('-')}.png`
+  }
+  return `${CDN_URL_GOOGLE}${emojiToUnicode(icon).join('-')}.png`
 }
 
 export function capitalize(str: string) {
