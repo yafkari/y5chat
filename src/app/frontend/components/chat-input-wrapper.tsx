@@ -8,6 +8,7 @@ import {
   SetStateAction,
   Dispatch,
   useRef,
+  useEffect,
 } from "react";
 import UpgradeCta from "./chat/upgrade-cta";
 import { ArrowUp, Square } from "lucide-react";
@@ -383,8 +384,8 @@ export default function ChatInputWrapper({
         abortControllerRef.current
       );
 
-      // Note: Don't set isStreaming(false) here - let it be controlled by streamingContent state
-      // The button will switch back to send mode when streamingContent becomes null
+      // Reset isStreaming after successful completion
+      setIsStreaming(false);
       setAttachments([]);
     } catch (error: unknown) {
       // Handle abort error gracefully
@@ -398,8 +399,9 @@ export default function ChatInputWrapper({
         error instanceof Error ? error.message : "Error sending message"
       );
     } finally {
-      // Clean up abort controller
+      // Clean up abort controller and ensure isStreaming is reset
       abortControllerRef.current = null;
+      setIsStreaming(false);
       onCallback();
     }
   };
@@ -419,11 +421,12 @@ export default function ChatInputWrapper({
     }
   };
 
-  // useEffect(() => {
-  //   if (streamingContent === null) {
-  //     setIsStreaming(false);
-  //   }
-  // }, [streamingContent]);
+  // Additional safeguard to ensure isStreaming is reset when streamingContent becomes null
+  useEffect(() => {
+    if (streamingContent === null) {
+      setIsStreaming(false);
+    }
+  }, [streamingContent]);
 
   return (
     <div
