@@ -7,6 +7,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 
 export default function UpgradeCta() {
   const user = useSessionQuery(api.users.getCurrentUser);
+  const isPro = user?.subscriptionId && (user?.subscriptionEndsOn ?? 0) > Date.now();
   const payAction = useAction(api.stripe.pay);
   const { signIn } = useAuthActions();
 
@@ -26,7 +27,7 @@ export default function UpgradeCta() {
     }
   };
 
-  if (user === undefined) {
+  if (user === undefined || isPro) {
     return null;
   }
 
