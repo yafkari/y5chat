@@ -395,25 +395,6 @@ export const AI_MODELS: Record<string, AIModelConfig> = {
       reasoning: { enabled: false },
     },
   },
-  "deepseek-r1": {
-    model: deepseek("deepseek-r1"),
-    title: "DeepSeek R1",
-    provider: "DeepSeek",
-    iconName: "deepseek",
-    isPremium: false,
-    enabled: false,
-    capabilities: {
-      supportsImageUpload: false,
-      supportsPdfUpload: false,
-      supportsWebSearch: false,
-      supportsReasoning: true,
-    },
-    category: "deepseek",
-    supportedTools: {
-      webSearch: { enabled: false },
-      reasoning: { enabled: true, effort: 'high' },
-    },
-  },
   "deepseek-r1-llama": {
     model: deepseek("deepseek-r1-llama"),
     title: "DeepSeek R1 (Llama Distilled)",
@@ -457,7 +438,7 @@ export const AI_MODELS: Record<string, AIModelConfig> = {
     title: "DeepSeek R1",
     provider: "DeepSeek",
     iconName: "deepseek",
-    isPremium: false,
+    isPremium: true,
     enabled: true,
     capabilities: {
       supportsImageUpload: false,
