@@ -249,8 +249,6 @@ export default function ModelSelector({
     return null;
   }
 
-  const selectedModelWithFallback = selectedModel ?? "gemini_2_flash";
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -259,8 +257,8 @@ export default function ModelSelector({
           size="xs"
           className="py-4 !px-2 hover:bg-primary/10 rounded-full"
         >
-          {getModelById(selectedModelWithFallback)?.icon}
-          {getModelById(selectedModelWithFallback)?.name}
+          {getModelById(selectedModel)?.icon}
+          {getModelById(selectedModel)?.name}
         </Button>
       </DialogTrigger>
       <DialogContent className="w-screen max-w-full sm:max-w-4xl sm:w-[90vw] h-screen sm:h-[66vh] p-0 border-0 shadow-2xl flex flex-col rounded-none sm:rounded-lg">
@@ -352,7 +350,7 @@ export default function ModelSelector({
                         }}
                         className={cn(
                           "p-4 rounded-lg transition-all hover:shadow-sm ring-2 ring-accent select-none relative",
-                          selectedModelWithFallback === model.id
+                          selectedModel === model.id
                             ? "bg-secondary/30 ring-primary dark:ring-primary/50"
                             : "hover:bg-secondary/20 cursor-pointer",
                           !isUserSubscribed &&

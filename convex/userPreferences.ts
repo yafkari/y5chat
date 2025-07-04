@@ -6,7 +6,7 @@ export const getSelectedModel = authedQuery({
   handler: async (ctx) => {
     const userId = ctx.userId;
     if (!userId) {
-      return null;
+      return "gemini_2_flash";
     }
 
     const userPreferences = await ctx.db
