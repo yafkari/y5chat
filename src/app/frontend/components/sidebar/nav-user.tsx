@@ -55,8 +55,10 @@ export function NavUser() {
   };
 
   const handleSignIn = async () => {
+    console.log("handleSignIn");
+    console.log(window.location.origin);
     await signIn("google", {
-      redirectTo: `${window.location.origin}/chat`,
+      redirectTo: `/chat`,
     });
   };
 
