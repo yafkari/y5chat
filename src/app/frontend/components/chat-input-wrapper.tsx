@@ -548,9 +548,9 @@ export default function ChatInputWrapper({
                         type="button"
                         onClick={handleStop}
                         size="xs"
-                        className="pointer-events-auto z-50 bg-neutral-800/80 hover:bg-neutral-800 text-neutral-200 text-sm !px-2.5 mb-0.5 -mr-1 py-5 rounded-full shadow-lg backdrop-blur-sm transition-[colors,opacity] disabled:opacity-30"
+                        className="pointer-events-auto z-50 bg-neutral-800/80 hover:bg-neutral-800 text-neutral-200 text-sm !px-3 mb-0.5 -mr-1 py-5 rounded-full shadow-lg backdrop-blur-sm transition-[colors,opacity] disabled:opacity-30"
                       >
-                        <Square className="size-5" />
+                        <Square strokeWidth={0} className="size-4 bg-neutral-200 p-0" />
                       </Button>
                     ) : (
                       <Button
