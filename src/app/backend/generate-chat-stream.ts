@@ -170,9 +170,10 @@ export async function generateChatStream({
       role: msg.role,
       content: msg.parts
         .filter((part) => {
-          // Filter out reasoning parts for AI SDK compatibility
+          // Filter out reasoning and source parts for AI SDK compatibility
           // The reasoning middleware will handle reasoning extraction
-          return part.type !== "reasoning";
+          // Source parts are for display only and not needed for AI processing
+          return part.type !== "reasoning" && part.type !== "source";
         })
         .map((part) => {
           switch (part.type) {
@@ -190,11 +191,11 @@ export async function generateChatStream({
                 data: part.data,
                 mimeType: part.mimeType,
               };
-            case "source":
-              return {
-                type: "source",
-                source: part.source,
-              };
+            // case "source": -> TODO: convert to text
+              // return {
+              //   type: "source",
+              //   source: part.source,
+              // };
             case "generated-image":
               // Convert generated images to text for conversation history
               // Skip loading placeholders (they have fileKey starting with "loading-")
