@@ -4,6 +4,7 @@ import {
   LogOut,
   Sparkles,
   LogInIcon,
+  BadgeCheck,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -148,13 +149,13 @@ export function NavUser() {
                     </DropdownMenuGroup>
                   </>
                 )}
-                {/* <DropdownMenuSeparator /> */}
-                {/* <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                <DropdownMenuSeparator />
+               <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <BadgeCheck />
                     Account
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  </DropdownMenuItem></DropdownMenuGroup>
+                  {/*  <DropdownMenuItem>
                     <CreditCard />
                     Billing
                   </DropdownMenuItem>
