@@ -298,7 +298,7 @@ export default function SettingsPage() {
                               Upgrade to Pro
                             </h2>
                             <div className="text-right">
-                              <span className="text-3xl font-bold">$10</span>
+                              <span className="text-3xl font-bold">$9.99</span>
                               <span className="text-muted-foreground">
                                 /month
                               </span>
@@ -371,7 +371,7 @@ export default function SettingsPage() {
                             * Premium credits are used for Image Generation with
                             GPT models, o3, Claude Sonnet, Gemini 2.5 Pro, and
                             Grok 3. Additional Premium credits can be purchased
-                            separately for $10 per 100.
+                            separately for $9.99 per 100.
                           </p>
                         </div>
                       </div>
