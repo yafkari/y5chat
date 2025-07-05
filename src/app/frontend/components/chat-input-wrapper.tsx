@@ -92,9 +92,6 @@ export default function ChatInputWrapper({
     }
   }, [setStreamingContent, handleStopStreaming]);
 
-  // Determine if any streaming is happening (initial request or streaming content)
-  const isAnyStreaming = isStreaming || streamingContent !== null;
-
   // Check if the selected model supports various features
   const supportsWebSearch = selectedModel
     ? modelSupportsFeature(selectedModel, "webSearch")
@@ -115,6 +112,13 @@ export default function ChatInputWrapper({
     api.messages.getByThreadId,
     threadId ? { threadId } : "skip"
   );
+
+  // Determine if any streaming is happening (initial request or streaming content)
+  // Only consider streaming content if it belongs to the current thread
+  const isStreamingForCurrentThread = streamingContent !== null && 
+    messages?.some(msg => msg.messageId === streamingContent.messageId);
+  
+  const isAnyStreaming = isStreaming || isStreamingForCurrentThread;
 
   // Helper function to move temp file to permanent location
   const moveFileToFinal = async (
