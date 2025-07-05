@@ -298,7 +298,7 @@ export default function SettingsPage() {
                               Upgrade to Pro
                             </h2>
                             <div className="text-right">
-                              <span className="text-3xl font-bold">$8</span>
+                              <span className="text-3xl font-bold">$10</span>
                               <span className="text-muted-foreground">
                                 /month
                               </span>
