@@ -37,8 +37,6 @@ export function NavUser() {
   const navigate = useNavigate();
   const { open } = useSidebar();
 
-  console.log("user", user);
-
   const payAction = useAction(api.stripe.pay);
 
   const handleUpgrade = async () => {

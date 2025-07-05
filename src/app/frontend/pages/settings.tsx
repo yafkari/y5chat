@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft, RotateCcw, LogOut, Crown, Trash2, Settings, History, Key, Paperclip, Mail, Palette } from "lucide-react";
+import {
+  ArrowLeft,
+  LogOut,
+  Crown,
+  Settings,
+  History,
+  Key,
+  Paperclip,
+  Mail,
+  Palette,
+  Info,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useSessionQuery } from "convex-helpers/react/sessions";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -16,12 +25,12 @@ import { api } from "@/convex/_generated/api";
 
 const tabs = [
   { id: "account", label: "Account", icon: Settings },
-  { id: "customization", label: "Customization", icon: Palette },
-  { id: "history", label: "History & Sync", icon: History },
-  { id: "models", label: "Models", icon: Crown },
-  { id: "api-keys", label: "API Keys", icon: Key },
-  { id: "attachments", label: "Attachments", icon: Paperclip },
-  { id: "contact", label: "Contact Us", icon: Mail },
+  // { id: "customization", label: "Customization", icon: Palette },
+  // { id: "history", label: "History & Sync", icon: History },
+  // { id: "models", label: "Models", icon: Crown },
+  // { id: "api-keys", label: "API Keys", icon: Key },
+  // { id: "attachments", label: "Attachments", icon: Paperclip },
+  // { id: "contact", label: "Contact Us", icon: Mail },
 ];
 
 export default function SettingsPage() {
@@ -30,10 +39,12 @@ export default function SettingsPage() {
   const { signOut } = useAuthActions();
   const currentUser = useSessionQuery(api.users.getCurrentUser);
   const payAction = useAction(api.stripe.pay);
-  
+
   const activeTab = tab || "account";
-  const isPro = currentUser?.subscriptionId && (currentUser?.subscriptionEndsOn ?? 0) > Date.now();
-  
+  const isPro =
+    currentUser?.subscriptionId &&
+    (currentUser?.subscriptionEndsOn ?? 0) > Date.now();
+
   const handleUpgrade = async () => {
     try {
       const url = await payAction();
@@ -52,16 +63,21 @@ export default function SettingsPage() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(2, 0, 0, 0);
-    return tomorrow.toLocaleTimeString("en-US", { 
-      hour: "numeric", 
+    return tomorrow.toLocaleTimeString("en-US", {
+      hour: "numeric",
       minute: "2-digit",
-      hour12: true 
+      hour12: true,
     });
   };
 
   const getUserInitials = (name?: string) => {
     if (!name) return "U";
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const getMessagesRemaining = () => {
@@ -87,7 +103,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen dark:bg-[#1A1A1A] dark:text-gray-100">
       {/* Header */}
       <div className="border-b bg-card">
         <div className="max-w-6xl mx-auto px-6 py-4">
@@ -101,7 +117,6 @@ export default function SettingsPage() {
               Back to Chat
             </Button>
             <div className="flex items-center gap-2">
-              <RotateCcw className="w-4 h-4 text-muted-foreground" />
               <Button
                 variant="ghost"
                 onClick={handleSignOut}
@@ -120,18 +135,25 @@ export default function SettingsPage() {
           {/* Left Sidebar */}
           <div className="w-80 space-y-6">
             {/* User Profile */}
-            <Card>
+            <Card className="dark:bg-background">
               <CardContent className="p-6">
                 <div className="flex flex-col items-center text-center space-y-4">
                   <Avatar className="w-20 h-20 bg-primary">
-                    <AvatarImage src={currentUser.image} alt={currentUser.name} />
+                    <AvatarImage
+                      src={currentUser.image}
+                      alt={currentUser.name}
+                    />
                     <AvatarFallback className="bg-primary text-primary-foreground text-xl font-semibold">
                       {getUserInitials(currentUser.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold text-lg">{currentUser.name || "User"}</h3>
-                    <p className="text-muted-foreground text-sm">{currentUser.email}</p>
+                    <h3 className="font-semibold text-lg">
+                      {currentUser.name || "User"}
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
+                      {currentUser.email}
+                    </p>
                     <Badge variant="secondary" className="mt-2">
                       {isPro ? "Pro Plan" : "Free Plan"}
                     </Badge>
@@ -141,9 +163,11 @@ export default function SettingsPage() {
             </Card>
 
             {/* Message Usage */}
-            <Card>
+            <Card className="dark:bg-background">
               <CardHeader>
-                <CardTitle className="text-sm font-medium">Message Usage</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Message Usage
+                </CardTitle>
                 <p className="text-xs text-muted-foreground">
                   Resets tomorrow at {getResetTime()}
                 </p>
@@ -153,11 +177,14 @@ export default function SettingsPage() {
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-muted-foreground">Standard</span>
                     <span className="font-medium">
-                      {isPro ? Math.floor(getUsagePercentage() / 100 * 1500) : 20 - (currentUser.chatCount || 0)}/{isPro ? 1500 : 20}
+                      {isPro
+                        ? Math.floor((getUsagePercentage() / 100) * 1500)
+                        : 20 - (currentUser.chatCount || 0)}
+                      /{isPro ? 1500 : 20}
                     </span>
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-primary h-2 rounded-full transition-all duration-300"
                       style={{ width: `${getUsagePercentage()}%` }}
                     />
@@ -168,39 +195,58 @@ export default function SettingsPage() {
                 </div>
                 <div className="text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground/60" />
-                    <span>Messages which invoke tools (e.g. search, grounding) may consume additional message credits.</span>
+                    <span className="inline-flex gap-1 text-sm">
+                      <Info className="size-5" />
+                      Messages which invoke tools (e.g. search, reasoning) may
+                      consume additional message credits.
+                    </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Keyboard Shortcuts */}
-            <Card>
+            <Card className="dark:bg-background">
               <CardHeader>
-                <CardTitle className="text-sm font-medium">Keyboard Shortcuts</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Keyboard Shortcuts
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Search</span>
                   <div className="flex gap-1">
-                    <Badge variant="outline" className="text-xs px-2 py-1">Ctrl</Badge>
-                    <Badge variant="outline" className="text-xs px-2 py-1">K</Badge>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      Ctrl
+                    </Badge>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      K
+                    </Badge>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">New Chat</span>
                   <div className="flex gap-1">
-                    <Badge variant="outline" className="text-xs px-2 py-1">Ctrl</Badge>
-                    <Badge variant="outline" className="text-xs px-2 py-1">Shift</Badge>
-                    <Badge variant="outline" className="text-xs px-2 py-1">O</Badge>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      Ctrl
+                    </Badge>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      Shift
+                    </Badge>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      O
+                    </Badge>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Toggle Sidebar</span>
                   <div className="flex gap-1">
-                    <Badge variant="outline" className="text-xs px-2 py-1">Ctrl</Badge>
-                    <Badge variant="outline" className="text-xs px-2 py-1">B</Badge>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      Ctrl
+                    </Badge>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      B
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
@@ -220,8 +266,8 @@ export default function SettingsPage() {
                     onClick={() => navigate(`/settings/${tabItem.id}`)}
                     className={cn(
                       "flex items-center gap-2 px-4 py-2 rounded-full",
-                      activeTab === tabItem.id 
-                        ? "bg-primary text-primary-foreground" 
+                      activeTab === tabItem.id
+                        ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     )}
                   >
@@ -238,90 +284,115 @@ export default function SettingsPage() {
                 <>
                   {/* Upgrade to Pro */}
                   {!isPro && (
-                    <Card>
-                      <CardContent className="p-8">
+                    <div>
+                      <div className="pb-">
                         <div className="space-y-6">
                           <div>
-                            <h2 className="text-2xl font-semibold mb-2">Upgrade to Pro</h2>
+                            <h2 className="text-2xl font-semibold mb-2">
+                              Upgrade to Pro
+                            </h2>
                             <div className="text-right">
                               <span className="text-3xl font-bold">$8</span>
-                              <span className="text-muted-foreground">/month</span>
+                              <span className="text-muted-foreground">
+                                /month
+                              </span>
                             </div>
                           </div>
-                          
-                          <div className="grid md:grid-cols-3 gap-6">
+
+                          <div className="grid md:grid-cols-3 gap-6 pb-16">
                             <div className="space-y-3">
                               <div className="flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                                   <Crown className="w-4 h-4 text-primary" />
                                 </div>
-                                <h3 className="font-semibold">Access to All Models</h3>
+                                <h3 className="font-semibold">
+                                  Access to All Models
+                                </h3>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                Get access to our full suite of models including Claude, o3-mini-high, and more!
+                                Get access to our full suite of models including
+                                GPT-4, DeepSeek R1, Gemini 2.5 Pro, and more!
                               </p>
                             </div>
-                            
+
                             <div className="space-y-3">
                               <div className="flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                                   <Settings className="w-4 h-4 text-primary" />
                                 </div>
-                                <h3 className="font-semibold">Generous Limits</h3>
+                                <h3 className="font-semibold">
+                                  Generous Limits
+                                </h3>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                Receive <span className="font-semibold">1500 standard credits</span> per month, plus{" "}
-                                <span className="font-semibold">100 premium credits</span>* per month.
+                                Receive{" "}
+                                <span className="font-semibold">
+                                  1000 standard credits
+                                </span>{" "}
+                                per month, plus{" "}
+                                <span className="font-semibold">
+                                  100 premium credits
+                                </span>
+                                * per month.
                               </p>
                             </div>
-                            
+
                             <div className="space-y-3">
                               <div className="flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                                   <Mail className="w-4 h-4 text-primary" />
                                 </div>
-                                <h3 className="font-semibold">Priority Support</h3>
+                                <h3 className="font-semibold">
+                                  Priority Support
+                                </h3>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                Get faster responses and dedicated assistance from the T3 team whenever you need help!
+                                Get faster responses and dedicated assistance
+                                from the Y5 team whenever you need help!
                               </p>
                             </div>
                           </div>
-                          
-                          <Button 
+
+                          <Button
                             onClick={handleUpgrade}
                             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3"
                             size="lg"
                           >
                             Upgrade Now
                           </Button>
-                          
+
                           <p className="text-xs text-muted-foreground">
-                            * Premium credits are used for GPT Image Gen, o3, Claude Sonnet, Gemini 2.5 Pro, and Grok 3. Additional Premium credits can be purchased separately for $8 per 100.
+                            * Premium credits are used for Image Generation with
+                            GPT models, o3, Claude Sonnet, Gemini 2.5 Pro, and
+                            Grok 3. Additional Premium credits can be purchased
+                            separately for $10 per 100.
                           </p>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   )}
-                  
+
                   {/* Danger Zone */}
-                  <Card>
-                    <CardContent className="p-8">
+                  {/* <div className="pt-16">
+                    <div className="pb-8">
                       <div className="space-y-4">
-                        <h3 className="text-xl font-semibold text-destructive">Danger Zone</h3>
+                        <h3 className="text-xl font-semibold text-destructive">
+                          Danger Zone
+                        </h3>
                         <p className="text-sm text-muted-foreground">
-                          Permanently delete your account and all associated data.
+                          Permanently delete your account and all associated
+                          data.
                         </p>
-                        <Button 
-                          variant="destructive" 
+                        <Button
+                          variant="destructive"
                           className="bg-destructive hover:bg-destructive/90"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
                           Delete Account
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div> */}
                 </>
               )}
 
@@ -330,9 +401,12 @@ export default function SettingsPage() {
                   <CardContent className="p-8">
                     <div className="text-center py-12">
                       <Palette className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">Customization</h3>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Customization
+                      </h3>
                       <p className="text-muted-foreground">
-                        Customize your chat experience with themes, fonts, and more.
+                        Customize your chat experience with themes, fonts, and
+                        more.
                       </p>
                     </div>
                   </CardContent>
@@ -344,7 +418,9 @@ export default function SettingsPage() {
                   <CardContent className="p-8">
                     <div className="text-center py-12">
                       <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">History & Sync</h3>
+                      <h3 className="text-lg font-semibold mb-2">
+                        History & Sync
+                      </h3>
                       <p className="text-muted-foreground">
                         Manage your chat history and synchronization settings.
                       </p>
@@ -386,7 +462,9 @@ export default function SettingsPage() {
                   <CardContent className="p-8">
                     <div className="text-center py-12">
                       <Paperclip className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">Attachments</h3>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Attachments
+                      </h3>
                       <p className="text-muted-foreground">
                         Manage your uploaded files and attachments.
                       </p>
@@ -402,7 +480,8 @@ export default function SettingsPage() {
                       <Mail className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                       <h3 className="text-lg font-semibold mb-2">Contact Us</h3>
                       <p className="text-muted-foreground">
-                        Get in touch with our support team for help and feedback.
+                        Get in touch with our support team for help and
+                        feedback.
                       </p>
                     </div>
                   </CardContent>
