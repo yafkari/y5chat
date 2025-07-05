@@ -7,7 +7,8 @@ import { useAuthActions } from "@convex-dev/auth/react";
 
 export default function UpgradeCta() {
   const user = useSessionQuery(api.users.getCurrentUser);
-  const isPro = user?.subscriptionId && (user?.subscriptionEndsOn ?? 0) > Date.now();
+  const isPro =
+    user?.subscriptionId && (user?.subscriptionEndsOn ?? 0) > Date.now();
   const payAction = useAction(api.stripe.pay);
   const { signIn } = useAuthActions();
 
@@ -15,19 +16,23 @@ export default function UpgradeCta() {
     if (!user?._id || user?.type === "anonymous") {
       await signIn("google", {
         redirectTo: `${window.location.origin}/chat`,
-      })
+      });
       return;
     }
-    
+
     try {
       const url = await payAction();
-      window.location.href = url
+      window.location.href = url;
     } catch (error) {
       console.error("Subscription failed:", error);
     }
   };
 
-  if (user === undefined || isPro) {
+  if (
+    user === undefined ||
+    isPro ||
+    (user?._id && user?.chatCount && user?.chatCount > 0)
+  ) {
     return null;
   }
 
@@ -36,9 +41,15 @@ export default function UpgradeCta() {
       <p className="sr-only">Upgrade to Pro</p>
       <div className="rounded-full bg-primary px-3 py-4 mb-4 text-sm text-white dark:text-black flex justify-center items-center relative select-none w-full">
         <span className="flex-1">
-          You only have {user?.chatCount ? user?.chatCount : !user?._id ? 10 : 0} messages left.{" "}
-          <Button variant="link" onClick={handleUpgrade} className="p-0 underline text-secondary hover:text-secondary/80">
-            {!user?._id || user?.type === "anonymous" ? "Sign in to reset your limits" : "Upgrade to Pro"}
+          You have no messages left.{" "}
+          <Button
+            variant="link"
+            onClick={handleUpgrade}
+            className="p-0 underline text-secondary hover:text-secondary/80"
+          >
+            {!user?._id || user?.type === "anonymous"
+              ? "Sign in to reset your limits"
+              : "Upgrade to Pro"}
           </Button>
         </span>
         <X
