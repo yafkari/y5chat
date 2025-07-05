@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import {
   ArrowLeft,
   LogOut,
@@ -36,8 +36,14 @@ const tabs = [
 export default function SettingsPage() {
   const { tab } = useParams<{ tab: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { signOut } = useAuthActions();
-  const currentUser = useSessionQuery(api.users.getCurrentUser);
+  
+  // Try to get user from navigation state first, fallback to query
+  const passedUser = location.state?.user;
+  const queriedUser = useSessionQuery(api.users.getCurrentUser);
+  const currentUser = passedUser || queriedUser;
+  
   const payAction = useAction(api.stripe.pay);
 
   const activeTab = tab || "account";
@@ -94,7 +100,7 @@ export default function SettingsPage() {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen dark:bg-[#1A1A1A] dark:text-gray-100 flex items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">Loading...</p>
         </div>
@@ -105,7 +111,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen dark:bg-[#1A1A1A] dark:text-gray-100">
       {/* Header */}
-      <div className="border-b bg-card">
+      <div className="">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Button

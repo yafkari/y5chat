@@ -148,12 +148,13 @@ export function NavUser() {
                   </>
                 )}
                 <DropdownMenuSeparator />
-               <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => navigate("/settings", { state: { user } })}>
                     <BadgeCheck />
                     Account
-                  </DropdownMenuItem></DropdownMenuGroup>
-                  {/*  <DropdownMenuItem>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                {/*  <DropdownMenuItem>
                     <CreditCard />
                     Billing
                   </DropdownMenuItem>
